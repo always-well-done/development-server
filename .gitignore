@@ -3,3 +3,6 @@
 .vagrant
 inventories/production
 **/cert.*
+**/atsuco.me
+**/junyakaneko.com
+**/redmine.alwayswd.tech
