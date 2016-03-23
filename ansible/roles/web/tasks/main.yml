@@ -1,0 +1,27 @@
+---
+
+- name: create user
+  user: name={{ WWW_USER }} generate_ssh_key=yes ssh_key_file={{ WWW_USER_SSH_KEY_FILE }}
+  become: yes
+  become_method: sudo
+
+- name: create public_html
+  file: path={{ WWW_HOME }} state=directory mode="755" recurse=yes
+  become: yes
+  become_user: "{{ WWW_USER }}"
+  become_method: sudo
+
+- name: copy nginx config redmine
+  template: src=web dest=/etc/nginx/sites-available/{{ inventory_hostname }}
+  become: yes
+  become_method: sudo
+
+- name: link redmine into sites-enabled
+  file: src=/etc/nginx/sites-available/{{ inventory_hostname }} dest=/etc/nginx/sites-enabled/{{ inventory_hostname }} state=link
+  become: yes
+  become_method: sudo
+
+- name: restart nginx
+  service: name=nginx state=restarted
+  become: yes
+  become_method: sudo

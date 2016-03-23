@@ -1,0 +1,8 @@
+---
+
+- include: python3.yml
+- include: ruby2.3.yml
+- include: nginx.yml
+- include: postgresql.yml
+- include: nodejs.yml
+- include: passenger.yml

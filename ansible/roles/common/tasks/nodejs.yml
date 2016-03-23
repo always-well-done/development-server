@@ -1,0 +1,14 @@
+---
+
+- name: install nodejs and npm
+  apt: name={{ item }} update_cache=yes
+  with_items:
+    - nodejs
+    - npm
+  become: yes
+  become_method: sudo
+
+- name: create symbolic link from nodejs to node
+  file: src=/usr/bin/nodejs dest=/usr/bin/node state=link
+  become: yes
+  become_method: sudo

@@ -1,0 +1,7 @@
+---
+
+- hosts: redmine
+  roles:
+    - common
+    - redmine
+  remote_user: "{{ LOGIN_USER }}"

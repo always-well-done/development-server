@@ -1,0 +1,7 @@
+production:
+  adapter: postgresql
+  database: {{ REDMINE_DB }}
+  host: localhost
+  username: {{ REDMINE_DB_USER }}
+  password: {{ REDMINE_DB_USER_PASS }}
+  encoding: utf8

@@ -1,0 +1,6 @@
+---
+
+LOGIN_USER: vagrant
+WWW_USER: webtest
+WWW_HOME: /home/webtest/public_html
+WWW_USER_SSH_KEY_FILE: .ssh/webtest

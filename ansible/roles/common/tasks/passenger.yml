@@ -1,0 +1,24 @@
+---
+
+- name: setup apt for passenger (add pgdg.list)
+  copy: src=passenger.list dest=/etc/apt/sources.list.d/passenger.list
+  become: yes
+  become_method: sudo
+
+- name: setup apt for passenger (add apt-key)
+  apt_key: keyserver=keyserver.ubuntu.com id=561F9B9CAC40B2F7
+  become: yes
+  become_method: sudo
+
+- name: install apt-transport-https and ca-certificates
+  apt: name={{ item }} update_cache=yes
+  with_items:
+    - apt-transport-https
+    - ca-certificates
+  become: yes
+  become_method: sudo
+
+- name: install passenger
+  apt: name=passenger update_cache=yes
+  become: yes
+  become_method: sudo

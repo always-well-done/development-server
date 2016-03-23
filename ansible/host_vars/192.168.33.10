@@ -1,0 +1,10 @@
+---
+
+LOGIN_USER: vagrant
+REDMINE_USER: redmine
+REDMINE_VERSION: 3.2.1
+REDMINE_INSTALL_PATH: /opt
+REDMINE_PATH: /opt/redmine
+REDMINE_DB: redmine
+REDMINE_DB_USER: redmine
+REDMINE_DB_USER_PASS: redmine

@@ -1,0 +1,22 @@
+---
+
+- name: install software-properties-common and python-software-properties
+  apt: name={{ item }} update_cache=yes
+  with_items:
+    - software-properties-common
+    - python-software-properties
+  become: yes
+  become_method: sudo
+
+- name: setup apt for ruby 2.3
+  apt_repository: repo=ppa:brightbox/ruby-ng
+  become: yes
+  become_method: sudo
+
+- name: install ruby2.3 and ruby2.3-dev
+  apt: name={{ item }} update_cache=yes
+  with_items:
+    - ruby2.3
+    - ruby2.3-dev
+  become: yes
+  become_method: sudo

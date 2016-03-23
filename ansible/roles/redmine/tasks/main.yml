@@ -1,0 +1,138 @@
+---
+
+- name: create redmine user
+  user: name={{ REDMINE_USER }}
+  become: yes
+  become_method: sudo
+
+- name: install necessary apt-packages
+  apt: name={{ item }} update_cache=yes
+  with_items:
+    - imagemagick
+    - libmagick++-dev
+    - fonts-takao-pgothic
+  become: yes
+  become_method: sudo
+
+- name: create db user for redmine
+  postgresql_user: name={{ REDMINE_DB_USER }} password={{ REDMINE_DB_USER_PASS }}
+  become: yes
+  become_method: sudo
+  become_user: postgres
+
+- name: create db for redmine
+  postgresql_db: name={{ REDMINE_DB }} encoding="UTF-8" lc_collate="ja_JP.UTF-8" lc_ctype="ja_JP.UTF-8" template="template0" owner={{ REDMINE_DB_USER }}
+  become: yes
+  become_method: sudo
+  become_user: postgres
+
+- name: download and extract redmine-{{ REDMINE_VERSION }}
+  unarchive: src=http://www.redmine.org/releases/redmine-{{ REDMINE_VERSION }}.tar.gz dest={{ REDMINE_INSTALL_PATH }} copy=no owner={{ REDMINE_USER }} group={{ REDMINE_USER }}
+  become: yes
+  become_method: sudo
+
+- name: link {{ REDMINE_PATH }} to
+  file: src={{ REDMINE_INSTALL_PATH }}/redmine-{{ REDMINE_VERSION }} dest={{ REDMINE_PATH }} state=link owner={{ REDMINE_USER }} group={{ REDMINE_USER }}
+  become: yes
+  become_method: sudo
+
+- name: copy database.yml
+  template: src=database.yml dest={{ REDMINE_PATH }}/config/database.yml
+  become: yes
+  become_user: "{{ REDMINE_USER }}"
+  become_method: sudo
+
+- name: install bundler
+  shell: gem install bundler
+  become: yes
+  become_method: sudo
+
+- name: install necessary gem packages for redmine by using bundler
+  bundler: state=present chdir={{ REDMINE_PATH }} extra_args="--without development test"
+  become: yes
+  become_method: sudo
+
+- name: generate secret token
+  shell: "bundle exec rake generate_secret_token"
+  args:
+    chdir: "{{ REDMINE_PATH }}"
+  become: yes
+  become_user: "{{ REDMINE_USER }}"
+  become_method: sudo
+
+- name: create db
+  shell: "RAILS_ENV=production bundle exec rake db:migrate"
+  args:
+    chdir: "{{ REDMINE_PATH }}"
+  become: yes
+  become_user: "{{ REDMINE_USER }}"
+  become_method: sudo
+
+- name: load default data
+  shell: "RAILS_ENV=production REDMINE_LANG=ja bundle exec rake redmine:load_default_data"
+  args:
+    chdir: "{{ REDMINE_PATH }}"
+  become: yes
+  become_user: "{{ REDMINE_USER }}"
+  become_method: sudo
+
+- name: set file permissions
+  file: path={{ item }} state=directory owner={{ REDMINE_USER }} group={{ REDMINE_USER }} recurse=yes mode=0755
+  with_items:
+    - "{{ REDMINE_PATH }}/files"
+    - "{{ REDMINE_PATH }}/log"
+    - "{{ REDMINE_PATH }}/tmp"
+    - "{{ REDMINE_PATH }}/tmp/pdf"
+    - "{{ REDMINE_PATH }}/public"
+    - "{{ REDMINE_PATH }}/plugin_assets"
+  become: yes
+  become_method: sudo
+
+- name: install supervisor
+  apt: name=supervisor
+  become: yes
+  become_method: sudo
+
+- name: copy config for supervisor
+  template: src=redmine.conf dest=/etc/supervisor/conf.d
+  become: yes
+  become_method: sudo
+
+- name: copy script to start/stop passenger for redmine
+  template: src=manage.sh dest={{ REDMINE_PATH }} mode="744"
+  become: yes
+  become_user: "{{ REDMINE_USER }}"
+  become_method: sudo
+
+- name: restart supervisor
+  service: name=supervisor state=restarted
+  become: yes
+  become_method: sudo
+
+- name: copy nginx config redmine
+  template: src=redmine dest=/etc/nginx/sites-available/{{ inventory_hostname }}
+  become: yes
+  become_method: sudo
+
+- name: link redmine into sites-enabled
+  file: src=/etc/nginx/sites-available/{{ inventory_hostname }} dest=/etc/nginx/sites-enabled/{{ inventory_hostname }} state=link
+  become: yes
+  become_method: sudo
+
+- name: create the directory for ssl certification for redmine
+  file: path=/etc/nginx/{{ inventory_hostname }} state=directory
+  become: yes
+  become_method: sudo
+
+- name: copy ssl certification for redmine
+  copy: src={{ item }} dest=/etc/nginx/{{ inventory_hostname }} mode="640"
+  with_items:
+    - cert.key
+    - cert.pem
+  become: yes
+  become_method: sudo
+
+- name: restart nginx
+  service: name=nginx state=restarted
+  become: yes
+  become_method: sudo
