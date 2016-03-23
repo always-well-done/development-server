@@ -3,7 +3,7 @@
 ## About
 
 This is an ansible playbook to provision servers for
-an organizations that has software development projects.
+an organization that has software development projects.
 The servers include web servers and Redmine for the projects.
 
 Since this playbook is a skelton, you must change hostnames,
