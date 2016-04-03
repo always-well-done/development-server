@@ -2,6 +2,7 @@
 
 - include: python3.yml
 - include: ruby2.3.yml
+- include: php.yml
 - include: nginx.yml
 - include: postgresql.yml
 - include: nodejs.yml
