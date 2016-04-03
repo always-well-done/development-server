@@ -1,6 +1,7 @@
 ---
 
 - hosts: web
+  serial: 1
   roles:
     - common
     - web

@@ -1,0 +1,10 @@
+---
+
+- name: install php5-fpm, php-apc, php5-pgsql
+  apt: name={{ item }} update_cache=yes
+  with_items:
+    - php5-fpm
+    - php-apc
+    - php5-pgsql
+  become: yes
+  become_method: sudo

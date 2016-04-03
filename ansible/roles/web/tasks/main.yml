@@ -11,12 +11,12 @@
   become_user: "{{ WWW_USER }}"
   become_method: sudo
 
-- name: copy nginx config redmine
+- name: copy nginx config for {{ inventory_hostname }}
   template: src=web dest=/etc/nginx/sites-available/{{ inventory_hostname }}
   become: yes
   become_method: sudo
 
-- name: link redmine into sites-enabled
+- name: link config for {{ inventory_hostname }} into sites-enabled
   file: src=/etc/nginx/sites-available/{{ inventory_hostname }} dest=/etc/nginx/sites-enabled/{{ inventory_hostname }} state=link
   become: yes
   become_method: sudo
