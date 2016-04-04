@@ -104,6 +104,11 @@
   become_user: "{{ REDMINE_USER }}"
   become_method: sudo
 
+- name: create redmine directory for supervisor's log
+  file: path=/var/log/supervisor/redmine state=directory
+  become: yes
+  become_method: sudo
+
 - name: restart supervisor
   service: name=supervisor state=restarted
   become: yes
